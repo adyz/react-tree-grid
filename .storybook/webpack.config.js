@@ -3,7 +3,7 @@ const path = require("path");
 module.exports = async ({ config, mode }) => {
   config.module.rules.push({
     test: /\.tsx?$/,
-    include: path.resolve(__dirname, "../src"),
+    include: [path.resolve(__dirname, "../src"), path.resolve(__dirname, "../stories")],
     use: [
       require.resolve("awesome-typescript-loader"),
       require.resolve("react-docgen-typescript-loader"),
