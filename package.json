@@ -1,0 +1,87 @@
+{
+  "name": "react-tree-grid",
+  "version": "0.0.0-development",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "sideEffects": false,
+  "files": [
+    "dist/index.js",
+    "dist"
+  ],
+  "scripts": {
+    "clean-temp": "(rimraf ./temp || true)",
+    "clean-dist": "(rimraf ./dist || true)",
+    "test": "jest",
+    "auto-temp-files": "node automation-scripts/automate-components.js",
+    "auto-types-copy": "node automation-scripts/automate-types-location.js",
+    "build": "cross-env NODE_ENV=production npm run clean-dist && npm run auto-temp-files &&  webpack && npm run auto-types-copy && npm run clean-temp",
+    "pre": "npm run build",
+    "travis-deploy-once": "travis-deploy-once --pro",
+    "semantic-release": "npm run build && semantic-release && npm run deploy-storybook -- --ci",
+    "storybook": "start-storybook -p 9001 -c .storybook",
+    "deploy-storybook": "storybook-to-ghpages",
+    "commit": "git-cz"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/adyz/react-tree-grid"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js"
+    ],
+    "transform": {
+      "^.+\\.(ts|tsx)$": "ts-jest"
+    },
+    "globals": {
+      "ts-jest": {
+        "tsConfigFile": "tsconfig.json"
+      }
+    },
+    "testMatch": [
+      "**/*.test.+(ts|tsx|js)"
+    ]
+  },
+  "devDependencies": {
+    "@storybook/addon-actions": "^5.1.11",
+    "@storybook/addon-info": "^5.1.11",
+    "@storybook/react": "^5.1.11",
+    "@storybook/storybook-deployer": "^2.8.1",
+    "@types/jest": "^24.0.17",
+    "@types/node": "^12.7.2",
+    "@types/react": "^16.9.2",
+    "@types/react-dom": "^16.8.5",
+    "@types/react-virtualized": "^9.21.4",
+    "@types/storybook__react": "^4.0.2",
+    "awesome-typescript-loader": "^5.2.1",
+    "babel-loader": "^8.0.6",
+    "commitizen": "^4.0.3",
+    "cross-env": "^5.2.0",
+    "css-loader": "^3.2.0",
+    "cz-conventional-changelog": "^3.0.2",
+    "fs-extra": "^8.1.0",
+    "jest": "^24.9.0",
+    "node-sass": "^4.12.0",
+    "react": "^16.9.0",
+    "react-docgen-typescript-loader": "^3.1.1",
+    "react-dom": "^16.9.0",
+    "react-virtualized": "^9.21.1",
+    "rimraf": "^3.0.0",
+    "sass-loader": "^7.2.0",
+    "semantic-release": "^15.13.21",
+    "style-loader": "^1.0.0",
+    "travis-deploy-once": "^5.0.11",
+    "ts-jest": "^24.0.2",
+    "ts-loader": "^6.0.4",
+    "typescript": "^3.5.3",
+    "webpack": "^4.39.2",
+    "webpack-cli": "^3.3.6"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "module": "commonjs", //still get umd output by using libraryTarget: "umd" in webpack.config.js
+    "declaration": true,
+    "outDir": "./dist",
+    "jsx": "react",
+  },
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
+}
