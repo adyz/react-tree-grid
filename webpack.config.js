@@ -32,7 +32,8 @@ module.exports = {
   },
   externals: {
       "react": "react",
-      "react-dom": "react-dom"
+      "react-dom": "react-dom",
+      "react-virtualized": "react-virtualized"
   },
   resolve: {
     extensions: [ '.tsx', '.ts', '.js' ]
