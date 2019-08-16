@@ -1,52 +1,6 @@
-# Boilerplate for React UI libraries
-[![Build Status](https://travis-ci.org/adyz/test-react-ts-npm-package.svg?branch=master)](https://travis-ci.org/adyz/test-react-ts-npm-package)
+# React tree grid (Flatten)
+[![Build Status](https://travis-ci.org/adyz/react-tree-grid.svg?branch=master)](https://travis-ci.org/adyz/react-tree-grid)
 
-This is a boilerplate that allows you to create your own react components with React and Typescript.
-Bellow you'll find a description on how to use this project from different points of view: User, Contributor and Creator.
-
-## Using this project as a library
-
-### Install
-Run `npm install --save-dev test-react-ts-npm-package`
-
-### Import single components (smaller bundle size)
-```js
-
-import Banner from "test-react-ts-npm-package/dist/banner";
-import Button from "test-react-ts-npm-package/dist/button";
-
-function App() {
-  return (
-    <div>
-      <Banner name="John" />
-      <Button>Go</Button>
-    </div>
-  );
-}
-```
-[![Edit Usage of the test-react-ts-npm-package with simple react](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/64m89m9pj3)
-
-### Import the full library
-```js
-
-import Banner, { Button } from "test-react-ts-npm-package";
-import
-
-function App() {
-  return (
-    <div>
-      <Banner name="Doe" />
-      <Button>Planet</Button>
-    </div>
-  );
-}
-```
-
-
-## Using this project as boilerplate
-- Clone this project
-- Modify the `package.json` file so that the new package name, version, etc fits your need.
-- Follow the steps from bellow
 
 ## Using this project as contributor
 - Clone this project
