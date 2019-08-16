@@ -1,8 +1,11 @@
 import { configure } from '@storybook/react';
+
 import { configureActions } from '@storybook/addon-actions';
 configureActions()
+
+const req = require.context('../stories', true, /\.stories\.tsx$/);
 function loadStories() {
-  require('../stories/index.js');
-  // You can require as many stories as you need.
+  req.keys().forEach(req);
 }
+
 configure(loadStories, module);
