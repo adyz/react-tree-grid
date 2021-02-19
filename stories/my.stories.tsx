@@ -28,7 +28,7 @@ const buttonStyle = {
 VirtualTreeStories.add( 
   "VirtualTree",
   () => (
-    <VirtualTree nodes={originalNodes} allExpanded={false}>
+    <VirtualTree nodes={originalNodes}>
       {({ style, node, index, selectNode, expandOrCollapse }) => {
           return (
             <div style={style}>

@@ -91,7 +91,7 @@ const data: NewRandomData[] = [
   {
     id: '0-1',
     name: 'test 0-1',
-    expanded: false,
+    expanded: true,
     children: [
       {
         id: '0-1-0',
