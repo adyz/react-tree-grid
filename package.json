@@ -85,8 +85,10 @@
     }
   },
   "dependencies": {
+    "@types/lodash": "^4.14.168",
     "@types/react-beautiful-dnd": "^13.0.0",
     "@types/storybook__addon-info": "^4.1.2",
+    "lodash": "^4.17.20",
     "react-beautiful-dnd": "^13.0.0"
   }
 }

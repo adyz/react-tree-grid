@@ -1,8 +1,10 @@
 import * as React from 'react';
 import flattenObject, { Tree } from './flatten';
 import { CellMeasurer, CellMeasurerCache, List } from 'react-virtualized';
-import { DragDropContext, Draggable, DraggableProvided, DraggableRubric, DraggableStateSnapshot, Droppable, DroppableProvided } from 'react-beautiful-dnd';
+import { DragDropContext, Draggable, DraggableProvided, DraggableRubric, DraggableStateSnapshot, DragStart, Droppable, DroppableProvided, DropResult, ResponderProvided } from 'react-beautiful-dnd';
 import { findDOMNode } from 'react-dom';
+
+import * as _ from 'lodash';
 
 // In this example, average cell height is assumed to be about 50px.
 // This value will be used for the initial `Grid` layout.
@@ -24,6 +26,7 @@ type WtfProps = {
   isGroupedOver?: boolean,
   style?: Object,
   index?: number,
+  isCombined?: string;
 };
 
 function getStyle(provided: DraggableProvided, style: any) {
@@ -93,7 +96,7 @@ function Wtf(props: WtfProps) {
                 <button style={{ ...buttonStyle, background: '#fff' }}>-</button>
               )}
             <label htmlFor={node.path}>
-              Path: {node.path} / i: {node.i}
+              {props.isCombined} Path: {node.path} / i: {node.i}
             </label>
           </p>
         </div>
@@ -125,6 +128,7 @@ interface Props<T> {
 interface State<T> {
   visibleKeys: string[];
   newNodes: { [key: string]: Spread<T> };
+  wasActiveDragItemExpanded: boolean;
 }
 export default class VirtualTree<T extends {}> extends React.Component<Props<T>, State<T>> {
   // tslint:disable-next-line:no-any
@@ -137,12 +141,15 @@ export default class VirtualTree<T extends {}> extends React.Component<Props<T>,
 
     this.state = {
       visibleKeys: [],
-      newNodes: {}
+      newNodes: {},
+      wasActiveDragItemExpanded: false
     };
 
     this.expandOrCollapse = this.expandOrCollapse.bind(this);
     this.onSelectNode = this.onSelectNode.bind(this);
     this._rowRenderer = this._rowRenderer.bind(this);
+    this.dragStart = this.dragStart.bind(this);
+    this.dragEnd = this.dragEnd.bind(this);
   }
   componentDidMount() {
     const flatNodes = flattenObject(this.props.nodes, this.props.allExpanded);
@@ -246,6 +253,34 @@ export default class VirtualTree<T extends {}> extends React.Component<Props<T>,
     });
   }
 
+  public collapse(key: string) {
+    this.setState((prevState: State<T>) => {
+      const { newNodes } = prevState;
+      newNodes[key].expanded = false;
+      const visibleKeys = prevState.visibleKeys.filter((visibleKey: string) => !visibleKey.startsWith(key) || visibleKey === key);
+      return {
+        visibleKeys,
+        newNodes
+      };
+
+    });
+  }
+
+  public expand(key: string) {
+    this.setState((prevState: State<T>) => {
+      const { newNodes } = prevState;
+      newNodes[key].expanded = true;
+
+      const pickedVisibleKeys = this.getVisibleNodeKeys(newNodes, key);
+        const mergedVisibleKeys = [...pickedVisibleKeys, ...prevState.visibleKeys];
+        mergedVisibleKeys.sort();
+        return {
+          visibleKeys: mergedVisibleKeys,
+          newNodes
+        };
+    });
+  }
+
   public onSelectNode(key: string, newCheckState: 0 | 1 | 2) {
     console.log('onSelect', key, newCheckState);
     this.setState((prevState: State<T>) => {
@@ -265,6 +300,49 @@ export default class VirtualTree<T extends {}> extends React.Component<Props<T>,
         newNodes
       };
     }, () => this.list.forceUpdateGrid());
+  }
+
+  public handleMove(source: string, destination: string) {
+    console.log({ source, destination });
+
+    let sourcePath = '0';
+    let destinationPath = '1'
+    const cloneNodes = this.props.nodes;
+
+    console.log(cloneNodes);
+
+    // //Copy data to be moved
+    const toMove = _.get(cloneNodes, sourcePath);
+
+    // //Remove the data that should be moved
+    _.unset(cloneNodes, sourcePath);
+
+    console.log({ data: JSON.parse(JSON.stringify(cloneNodes)) });
+
+    //Set copied data to destination
+    if (_.has(cloneNodes, destinationPath + '.children')) {
+      console.log('Has children');
+      const data = _.get(cloneNodes, destinationPath).children
+      data.push(toMove);
+    } else {
+      _.set(cloneNodes, destinationPath + '.children', [toMove]);
+    }
+
+    const flatNodes = flattenObject(cloneNodes);
+    const visibleKeys = this.getVisibleNodeKeys(flatNodes);
+
+  
+
+    this.setState({
+      newNodes: flatNodes,
+      visibleKeys: visibleKeys
+    });
+
+    setTimeout(() => {
+      console.log('Force be with you');
+      this.list.forceUpdateGrid()
+    }, 1000)
+
   }
 
   _noRowsRenderer() {
@@ -303,6 +381,7 @@ export default class VirtualTree<T extends {}> extends React.Component<Props<T>,
               provided={provided}
               node={node}
               isDragging={snapshot.isDragging}
+              isCombined={snapshot.combineTargetFor}
               style={{ margin: 0, ...style }}
               index={index}
             />
@@ -312,15 +391,38 @@ export default class VirtualTree<T extends {}> extends React.Component<Props<T>,
     );
   }
 
+  public dragStart(initial: DragStart, provided: ResponderProvided){
+    console.log('Start', {initial});
+
+    const nodeKey = initial.draggableId;
+    const node = this.state.newNodes[nodeKey]
+    const isExpanded = node.expanded;
+    this.setState({
+      wasActiveDragItemExpanded: isExpanded
+    });
+    this.collapse(initial.draggableId);
+  }
+
+  public dragEnd(result: DropResult, provided: ResponderProvided){
+    console.log('End', {result});
+    console.log('Combined', result.combine);
+
+    const nodeKey = result.draggableId;
+    if(this.state.wasActiveDragItemExpanded) {
+        this.expand(nodeKey)
+    }
+  }
+
   public render() {
     console.log('Render length', this.state.visibleKeys.length);
     return (
       this.state.visibleKeys.length > 0 && (
         <>
-          <DragDropContext onDragEnd={() => console.log('drag ended')}>
+          <DragDropContext onDragStart={this.dragStart} onDragEnd={this.dragEnd}>
             <Droppable
               droppableId="droppable"
               mode="virtual"
+              isCombineEnabled={true}
               renderClone={(
                 provided: DraggableProvided,
                 snapshot: DraggableStateSnapshot,

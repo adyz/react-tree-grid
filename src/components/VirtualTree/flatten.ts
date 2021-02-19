@@ -10,6 +10,7 @@ export type Tree= {
   children: any[]; 
   expanded: boolean;
   checkedState: 0 | 1 | 2,
+  originalIndex: string,
   i: number
 };
 
@@ -27,10 +28,11 @@ function idOf(i: number): string {
 
 function flattenObject<T>(nodes: T[], allExpanded?: boolean) {
   const toReturn = {} as { [key: string]: T & Tree };
-  function rec(restNodes: T[], prevIndex: string, nesting: number = 0) {
+  function rec(restNodes: T[], prevIndex: string, nesting: number = 0, prevOriginalIndex: string) {
     restNodes.forEach((node: T & Tree, i: number) => {
       const myKey = prevIndex + '-' + idOf(i);
       const newNesting = nesting + 1;
+      const newOriginalIndex = prevOriginalIndex === 'root' ? '' + i :  prevOriginalIndex + '.children.' + i;
       if (node.children && node.children.length > 0) {
         toReturn[myKey] = {
           ...node,
@@ -41,6 +43,7 @@ function flattenObject<T>(nodes: T[], allExpanded?: boolean) {
           children: [],
           checkedState: 0,
           i,
+          originalIndex: newOriginalIndex,
           expanded: typeof allExpanded !== 'undefined' ? 
             allExpanded : 
             typeof node.expanded !== 'undefined' ? 
@@ -49,7 +52,7 @@ function flattenObject<T>(nodes: T[], allExpanded?: boolean) {
 
         };
 
-        rec(node.children, myKey, newNesting);
+        rec(node.children, myKey, newNesting, newOriginalIndex);
       } else {
         toReturn[myKey] = {
           ...node,
@@ -61,14 +64,15 @@ function flattenObject<T>(nodes: T[], allExpanded?: boolean) {
           checkedState: 0,
           i,
           expanded: true,
+          originalIndex: newOriginalIndex,
           // coz expanded "true" it's faster 
           // (will not go in the collapsed nodes to search into) and it does not mather (coz it has no children)
         };
       }
-    });
+    }); 
   }
 
-  rec(nodes, 'a');
+  rec(nodes, 'a', 0, 'root');
 
   return toReturn;
 }
